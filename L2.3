@@ -1,55 +1,29 @@
-#include "pico/stdlib.h"
-#include "hardware/pwm.h"
-#include "hardware/adc.h"
 
-const uint pFETPin = 0;     // Пин для силового ключа (P-FET)
-const uint fanPin = 1;      // Пин для вентилятора
-const uint potentiometerPin = 26;  // Пин для потенциометра (A0)
+AmperkaFET pFET; // Объект для управления P-FET
+AmperkaFET nFET; // Объект для управления N-FET
 
 void setup() {
-    // Инициализация стандартной библиотеки
-    stdio_init_all();
-
-    // Инициализация PWM для силового ключа
-    pwm_config config = pwm_get_default_config();
-    pwm_config_set_wrap(&config, 1000); // 1 ms period (25 kHz)
-    pwm_init(pwm_gpio_to_slice_num(pFETPin), &config, false);
-    uint fan_pwm = pwm_gpio_to_slice_num(fanPin);
-    uint potentiometer_pwm = pwm_gpio_to_slice_num(potentiometerPin);
-
-    // Инициализация потенциометра
-    adc_init();
-    adc_gpio_init(potentiometerPin);
-    adc_select_input(0); // Выберите правильный канал для потенциометра
-
-    // Конфигурация пинов
-    gpio_init(pFETPin);
-    gpio_set_dir(pFETPin, GPIO_OUT);
-    gpio_init(fanPin);
-    gpio_set_function(fanPin, GPIO_FUNC_PWM);
-
-    // Включение PWM на пине вентилятора
-    pwm_set_wrap(fan_pwm, 1000); // 1 ms period (25 kHz)
-    pwm_set_chan_level(fan_pwm, PWM_CHAN_A, 0); // Начальная скважность (0 соответствует выключенному вентилятору)
-    pwm_set_enabled(fan_pwm, true);
+  Serial.begin(9600);
+  pFET.begin();
+  nFET.begin();
 }
 
-int main() {
-    setup();
-
-    while (true) {
-        // Чтение значения с потенциометра
-        uint16_t pot_value = adc_read();
-        
-        // Регулирование скважности ШИМ на пине вентилятора и силового ключа
-        pwm_set_chan_level(pwm_gpio_to_slice_num(fanPin), PWM_CHAN_A, pot_value);
-        pwm_set_chan_level(pwm_gpio_to_slice_num(pFETPin), PWM_CHAN_B, pot_value);
-
-        // Вывод значения с потенциометра на Serial
-        printf("Potentiometer Value: %d\n", pot_value);
-
-        sleep_ms(100); // Задержка между измерениями (может быть изменена)
+void loop() {
+  if (Serial.available() > 0) {
+    char command = Serial.read();
+    
+    if (command == 'P' || command == 'p') {
+      pFET.on();
+      Serial.println("P-FET is turned on.");
+    } else if (command == 'N' || command == 'n') {
+      nFET.on();
+      Serial.println("N-FET is turned on.");
+    } else if (command == 'O' || command == 'o') {
+      pFET.off();
+      nFET.off();
+      Serial.println("Both FETs are turned off.");
+    } else {
+      Serial.println("Invalid command. Enter 'P', 'N', or 'O'.");
     }
-
-    return 0;
+  }
 }
