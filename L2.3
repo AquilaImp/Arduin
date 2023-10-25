@@ -1,9 +1,16 @@
 
-AmperkaFET pFET; // Объект для управления P-FET
-AmperkaFET nFET; // Объект для управления N-FET
+#include <SPI.h>
+#include <AmperkaFET.h>
+
+// Объекты для управления FET-ами
+AmperkaFET pFET(10); // Пин для P-FET, подключенный к D10
+AmperkaFET nFET(9);  // Пин для N-FET, подключенный к D9
 
 void setup() {
   Serial.begin(9600);
+  SPI.begin(); // Инициализация шины SPI
+
+  // Инициализация FET-ов
   pFET.begin();
   nFET.begin();
 }
