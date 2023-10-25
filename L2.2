@@ -1,0 +1,26 @@
+
+const uint fanPin = 1;
+
+void setupFan() {
+    gpio_set_function(fanPin, GPIO_FUNC_PWM);
+    uint slice_num = pwm_gpio_to_slice_num(fanPin);
+    pwm_set_wrap(slice_num, 20000); // 20 ms period
+    pwm_set_chan_level(slice_num, PWM_CHAN_A, 0);
+    pwm_set_enabled(slice_num, true);
+}
+
+void setFanSpeed(int spe
+    uint slice_num = pwm_gpio_to_slice_num(fanPin);
+    pwm_set_chan_level(slice_num, PWM_CHAN_A, speed);
+}
+
+int main() {
+    setupFan();
+
+    while (true) {
+        int speed = /* Чтение скорости из потенциометра или другого источника */;
+        setFanSpeed(speed);
+    }
+
+    return 0;
+}
