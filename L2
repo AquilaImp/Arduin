@@ -1,19 +1,17 @@
 #include <Servo.h>
 
-Servo servo; // Объект для управления сервоприводом
+Servo servo; 
 
-const int potPin = A0; // Пин, к которому подключен потенциометр
-
+const int potPin = A0; 
 void setup() {
-  servo.attach(9); // Пин для управления сервоприводом (D9)
-}
+  servo.attach(9);
 
 void loop() {
-  int potValue = analogRead(potPin); // Считываем значение с потенциометра (0-1023)
+  int potValue = analogRead(potPin);
   
-  int angle = map(potValue, 0, 1023, 0, 180); // Преобразуем значение в угол (0-180 градусов)
+  int angle = map(potValue, 0, 1023, 0, 180);
   
-  servo.write(angle); // Устанавливаем угол поворота сервопривода
+  servo.write(angle); 
   
-  delay(15); // Небольшая задержка для стабилизации положения
+  delay(15); 
 }
