@@ -1,38 +1,38 @@
-// Подключаем необходимые библиотеки 
-#include <SPI.h> // Библиотека для работы с интерфейсом SPI 
-#include <AmperkaFET.h> // Библиотека для работы с силовыми ключами 
-#include <sstream> // Библиотека для работы со строками 
-#include <iostream> // Библиотека для работы с потоками ввода/вывода 
+
+#include <SPI.h> 
+#include <AmperkaFET.h> 
+#include <sstream> 
+#include <iostream> 
  
  
-FET mosfet(D17, 2); // Создаем объект mosfet с указанными параметрами 
+FET mosfet(D17, 2); 
  
 void setup() { 
- mosfet.begin(); // Инициализируем mosfet 
- Serial.begin(9600); // Инициализируем последовательную связь 
+ mosfet.begin();  
+ Serial.begin(9600); 
  
 
 } 
  
 void loop() {
- if (Serial.available()) { // Если есть доступные данные в последовательной связи 
+ if (Serial.available()) { 
  std::stringstream ss; 
- ss « Serial.readString().c_str(); // Считываем строку из Serial 
- uint32_t modul, key, i; // Объявляем переменные для хранения данных 
- int level; // Объявляем переменную для хранения уровня 
- ss » modul » key » i; // Извлекаем значения из строки 
+ ss « Serial.readString().c_str(); 
+ uint32_t modul, key, i; 
+ int level; 
+ ss » modul » key » i; 
  
  if (i > 0) 
- level = HIGH; // Если i > 0, устанавливаем уровень HIGH 
+ level = HIGH;
  else 
- level = LOW; // В противном случае устанавливаем уровень LOW 
+ level = LOW; 
  
  if (modul > 1) 
- modul = 255; // Если modul > 1, устанавливаем modul = 255 
+ modul = 255; 
  
  if (key > 7) 
- key = 255; // Если key > 7, устанавливаем key = 255 
+ key = 255; 
  
- mosfet.digitalWrite(modul, key, level); // Устанавливаем уровень для ключа на модуле 
+ mosfet.digitalWrite(modul, key, level); 
  } 
 }
