@@ -1,56 +1,38 @@
-#include "pico/stdlib.h"
-#include "hardware/pwm.h"
-#include "hardware/adc.h"
-
-const uint pFETPin = 0;     //P-FET
-const uint fanPin = 1;     
-const uint potentiometerPin = 26;  // A0
-
-void setup() {
-
-    stdio_init_all();
-
-    pwm_config config = pwm_get_default_config();
-    pwm_config_set_wrap(&config, 1000);
-    pwm_init(pwm_gpio_to_slice_num(pFETPin), &config, false);
-    uint fan_pwm = pwm_gpio_to_slice_num(fanPin);
-    uint potentiometer_pwm = pwm_gpio_to_slice_num(potentiometerPin);
-
-    adc_init();
-    adc_gpio_init(potentiometerPin);
-    adc_select_input(0); 
-
-   
-    gpio_init(pFETPin);
-    gpio_set_dir(pFETPin, GPIO_OUT);
-    gpio_init(fanPin);
-    gpio_set_function(fanPin, GPIO_FUNC_PWM);
-
+// Подключаем необходимые библиотеки 
+#include <SPI.h> // Библиотека для работы с интерфейсом SPI 
+#include <AmperkaFET.h> // Библиотека для работы с силовыми ключами 
+#include <sstream> // Библиотека для работы со строками 
+#include <iostream> // Библиотека для работы с потоками ввода/вывода 
  
-    pwm_set_wrap(fan_pwm, 1000); 
-    pwm_set_chan_level(fan_pwm, PWM_CHAN_A, 0); 
-    pwm_set_enabled(fan_pwm, true);
-}
+ 
+FET mosfet(D17, 2); // Создаем объект mosfet с указанными параметрами 
+ 
+void setup() { 
+ mosfet.begin(); // Инициализируем mosfet 
+ Serial.begin(9600); // Инициализируем последовательную связь 
+ 
 
-int main() {
-    setup();
-
-    while (true) {
-       
-        uint16_t pot_value = adc_read();
-        
-
-        pwm_set_chan_level(pwm_gpio_to_slice_num(fanPin), PWM_CHAN_A, pot_value);
-        pwm_set_chan_level(pwm_gpio_to_slice_num(pFETPin), PWM_CHAN_B, pot_value);
-
-        printf("Potentiometer Value: %d\n", pot_value);
-
-        sleep_ms(100); 
-    }
-
-    return 0;
-}
-
-
-    return 0;
+} 
+ 
+void loop() {
+ if (Serial.available()) { // Если есть доступные данные в последовательной связи 
+ std::stringstream ss; 
+ ss « Serial.readString().c_str(); // Считываем строку из Serial 
+ uint32_t modul, key, i; // Объявляем переменные для хранения данных 
+ int level; // Объявляем переменную для хранения уровня 
+ ss » modul » key » i; // Извлекаем значения из строки 
+ 
+ if (i > 0) 
+ level = HIGH; // Если i > 0, устанавливаем уровень HIGH 
+ else 
+ level = LOW; // В противном случае устанавливаем уровень LOW 
+ 
+ if (modul > 1) 
+ modul = 255; // Если modul > 1, устанавливаем modul = 255 
+ 
+ if (key > 7) 
+ key = 255; // Если key > 7, устанавливаем key = 255 
+ 
+ mosfet.digitalWrite(modul, key, level); // Устанавливаем уровень для ключа на модуле 
+ } 
 }
