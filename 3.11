@@ -1,0 +1,41 @@
+#include <Arduino.h>
+#include <WiFi.h>
+#include <AmperkaFET.h>
+
+FET mosfet(D17, 2);
+
+void setup() {
+    mosfet.begin();
+    WiFi.begin("ASOIU", "kaf.asoiu.48");
+    auto res = WiFi.waitForConnectResult();
+
+    if (res == WL_CONNECTED) {
+        auto ip = WiFi.localIP();
+        Serial.print("Connected to Wi-Fi. IP Address: ");
+        Serial.print(ip);
+        Serial.print('\n');
+    } else {
+        Serial.print("Error! Can't connect to Wi-Fi!");
+        while (true) { /* Hang up */ }
+    }
+}
+
+void loop() {
+    auto host = Serial.readStringUntil('\n');
+    if (host.length() <= 0)
+        goto end;
+    
+    if (WiFi.ping(host) > 0) {
+        Serial.printf("%s is available\n", host.c_str());
+        
+        // Управление FET в соответствии с полученными данными
+        mosfet.digitalWrite(1, 2, HIGH);
+        delay(1000);  // Поддерживаем состояние в течение 1 секунды
+        mosfet.digitalWrite(1, 2, LOW);
+    } else {
+        Serial.printf("%s: host is unreachable\n", host.c_str());
+    }
+
+    end:
+        { }
+}
