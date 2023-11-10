@@ -1,11 +1,9 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <AmperkaFET.h>
 
-FET mosfet(D17, 2);
 
 void setup() {
-    mosfet.begin();
+ 
     Serial.begin(115200);
     WiFi.begin("ASOIU", "kaf.asoiu.48");
 
@@ -15,6 +13,8 @@ void setup() {
     }
 
     Serial.println("Connected to WiFi");
+    Serial.print("IP-адрес");
+    Serial.println("");
 }
 
 void loop() {
@@ -24,11 +24,9 @@ void loop() {
         if (host.length() > 0) {
             if (WiFi.ping(host.c_str()) > 0) {
                 Serial.printf("%s is available\n", host.c_str());
-
-                // Управление FET в соответствии с полученными данными
-                mosfet.digitalWrite(1, 2, HIGH);
-                delay(1000);  // Поддерживаем состояние в течение 1 секунды
-                mosfet.digitalWrite(1, 2, LOW);
+              
+                delay(1000);  
+               
             } else {
                 Serial.printf("%s: host is unreachable\n", host.c_str());
             }
